@@ -87,3 +87,8 @@ button:disabled {
 a {
   color: #2962ff;
 }
+
+footer {
+  margin-top: 24px;
+  font-size: 12px;
+}
