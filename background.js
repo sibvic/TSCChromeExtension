@@ -159,10 +159,19 @@ async function handle(message) {
       const token = await getToken();
       const session = await chrome.storage.session.get(["job", "pendingSource", "sourceApproximate"]);
       let balance = null;
+      let subscription = null;
       let signedIn = Boolean(token);
       if (token) {
         try {
           balance = await request("/billing/balance");
+          try {
+            subscription = await request("/billing/subscription");
+          } catch (error) {
+            if (error.status === 401) {
+              throw error;
+            }
+            subscription = null;
+          }
         } catch (error) {
           if (error.status === 401) {
             signedIn = false;
@@ -175,6 +184,7 @@ async function handle(message) {
         ok: true,
         signedIn,
         balance,
+        subscription,
         job: session.job || null,
         pendingSource: session.pendingSource || "",
         sourceApproximate: Boolean(session.sourceApproximate),
@@ -203,6 +213,8 @@ async function handle(message) {
       };
     case "balance":
       return { ok: true, data: await request("/billing/balance") };
+    case "subscription":
+      return { ok: true, data: await request("/billing/subscription") };
     case "download":
       return { ok: true, data: await downloadFile(message.scriptId, message.fileId) };
     default:

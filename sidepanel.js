@@ -20,7 +20,7 @@ const statusLine = document.getElementById("status");
 const errorLine = document.getElementById("error");
 const actions = document.getElementById("actions");
 
-let state = { signedIn: false, balance: null, clientUrl: "", job: null };
+let state = { signedIn: false, balance: null, subscription: null, clientUrl: "", job: null };
 let ticking = false;
 let pollTimer = 0;
 
@@ -66,6 +66,15 @@ function api(type, payload) {
 
 function job() {
   return state.job;
+}
+
+function subscriptionActive() {
+  return prop(state.subscription, "Active") === true;
+}
+
+function subscriptionUntil() {
+  const until = prop(state.subscription, "ActiveUntil");
+  return until ? String(until).slice(0, 10) : "";
 }
 
 async function saveJob(next) {
@@ -158,7 +167,9 @@ function render() {
   signedIn.hidden = !state.signedIn;
   if (state.signedIn) {
     const points = state.balance == null ? "—" : state.balance;
-    account.textContent = "Balance: " + points + " points";
+    account.textContent = subscriptionActive()
+      ? "Subscription until " + subscriptionUntil() + ". Balance: " + points + " points"
+      : "Balance: " + points + " points";
   } else {
     account.textContent = "Not signed in";
   }
@@ -224,11 +235,17 @@ function renderStatus() {
     case "awaitingPayment":
       statusLine.textContent = current.codeStatus === "Ok"
         ? "This file is already unlocked."
-        : "Unlock " + current.fileType + " for " + current.price + " points. Balance: " + (current.balance == null ? "—" : current.balance) + ".";
+        : subscriptionActive()
+          ? "Included in your monthly subscription."
+          : "Unlock " + current.fileType + " for " + current.price + " points. Balance: " + (current.balance == null ? "—" : current.balance) + ".";
       if (current.codeStatus === "Ok") {
         actions.append(button("Download", "", () => payAndDownload(false)));
+      } else if (subscriptionActive()) {
+        actions.append(button("Included in subscription", "", () => payAndDownload(true)));
+      } else if (Number(current.price) === 0) {
+        actions.append(button("Download", "", () => payAndDownload(true)));
       } else if (Number(current.price) > Number(current.balance == null ? -1 : current.balance)) {
-        actions.append(link(site + "/Balance", "Top up balance"));
+        actions.append(link(site + "/Balance", "Subscribe or top up"));
       } else {
         actions.append(button("Unlock for " + current.price + " points", "", () => payAndDownload(true)));
       }
@@ -397,9 +414,16 @@ async function enterPayment(code) {
   current.error = "";
   current.balance = await api("balance");
   state.balance = current.balance;
+  try {
+    state.subscription = await api("subscription");
+  } catch (error) {
+    if (error.status === 401) {
+      throw error;
+    }
+  }
   await saveJob(current);
   render();
-  if (code.status === "Ok" || current.price === 0) {
+  if (code.status === "Ok" || current.price === 0 || subscriptionActive()) {
     await payAndDownload(code.status !== "Ok");
   }
 }
@@ -555,6 +579,7 @@ document.getElementById("signOut").addEventListener("click", async () => {
   await chrome.runtime.sendMessage({ type: "signOut" });
   state.signedIn = false;
   state.balance = null;
+  state.subscription = null;
   render();
 });
 
