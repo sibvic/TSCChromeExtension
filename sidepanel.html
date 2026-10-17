@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Trade Script Converter</title>
+  <link rel="stylesheet" href="sidepanel.css" />
+</head>
+<body>
+  <header>
+    <h1>Convert</h1>
+    <p id="account"></p>
+  </header>
+
+  <section id="signedOut">
+    <p>Sign in with the same account you use on the website. Conversions are charged to that balance.</p>
+    <button id="signIn" type="button">Sign in</button>
+  </section>
+
+  <section id="signedIn" hidden>
+    <label for="source">Pine source</label>
+    <textarea id="source" rows="10" spellcheck="false" placeholder="Open a script in the TradingView Pine Editor, or paste the source here."></textarea>
+    <p id="approximate" class="warn" hidden>The editor text was read from the screen and may have lost indentation. Paste the source if conversion fails.</p>
+
+    <label for="platform">Platform</label>
+    <select id="platform"></select>
+    <div id="options"></div>
+
+    <p id="status"></p>
+    <p id="error" class="error" hidden></p>
+    <div id="actions"></div>
+    <p><button id="signOut" type="button" class="link">Sign out</button></p>
+  </section>
+
+  <script type="module" src="sidepanel.js"></script>
+</body>
+</html>

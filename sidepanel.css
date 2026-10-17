@@ -1,0 +1,89 @@
+body {
+  margin: 0;
+  padding: 16px;
+  color: #1c1c1c;
+  background: #f7f8fa;
+  font: 14px/1.4 "Segoe UI", sans-serif;
+}
+
+h1 {
+  margin: 0 0 4px;
+  font-size: 18px;
+}
+
+header p {
+  margin: 0 0 16px;
+  color: #555;
+}
+
+label {
+  display: block;
+  margin: 12px 0 4px;
+  font-weight: 600;
+}
+
+textarea,
+select {
+  width: 100%;
+  box-sizing: border-box;
+  font: 12px/1.4 Consolas, monospace;
+}
+
+select {
+  font-family: "Segoe UI", sans-serif;
+}
+
+textarea {
+  min-height: 160px;
+  resize: vertical;
+}
+
+button {
+  border: 0;
+  border-radius: 4px;
+  background: #2962ff;
+  color: #fff;
+  font: 600 14px/1 "Segoe UI", sans-serif;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+button.secondary {
+  background: #e6e8ee;
+  color: #1c1c1c;
+  margin-left: 8px;
+}
+
+button.link {
+  background: transparent;
+  color: #2962ff;
+  padding: 0;
+}
+
+button:disabled {
+  background: #b9c0cc;
+  cursor: default;
+}
+
+.warn {
+  color: #8a5a00;
+}
+
+.error {
+  color: #b00020;
+}
+
+#actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+#actions button.secondary {
+  margin-left: 0;
+}
+
+a {
+  color: #2962ff;
+}
