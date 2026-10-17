@@ -7,7 +7,6 @@ New-Item -ItemType Directory -Path $stage | Out-Null
 New-Item -ItemType Directory -Path $dist -Force | Out-Null
 
 $include = @(
-  "manifest.json",
   "background.js",
   "config.js",
   "content.js",
@@ -20,6 +19,13 @@ foreach ($name in $include) {
   Copy-Item (Join-Path $root $name) (Join-Path $stage $name)
 }
 Copy-Item (Join-Path $root "icons") (Join-Path $stage "icons") -Recurse
+
+# The Chrome Web Store rejects the key field. It stays in the source manifest so an unpacked install keeps a stable id.
+$manifest = Get-Content (Join-Path $root "manifest.json") -Raw | ConvertFrom-Json
+$manifest.PSObject.Properties.Remove("key")
+$json = $manifest | ConvertTo-Json -Depth 8
+$utf8 = New-Object System.Text.UTF8Encoding $false
+[System.IO.File]::WriteAllText((Join-Path $stage "manifest.json"), $json, $utf8)
 
 if (Test-Path $zipPath) {
   Remove-Item $zipPath -Force
